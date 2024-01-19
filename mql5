@@ -1,0 +1,82 @@
+mql5
+// OrderManager MT4
+// Developer: Forex Robot Easy Team
+// Developer's site: forexroboteasy.com
+
+// This code implements a risk management feature that allows traders to define the risk associated with each trade accurately and quickly.
+// It also provides a visual representation of potential risks to aid traders in making informed decisions.
+// Additionally, it includes an order modification function that streamlines the process for traders.
+// The order modification feature is easy to use and incorporates advanced trading tools.
+// Trade functions necessary to optimize risk management and order modification are also developed.
+
+//+------------------------------------------------------------------+
+//|                    OrderManager MT4                               |
+//|------------------------------------------------------------------|
+//| This EA provides risk management and order modification features |
+//| to simplify trade management for both professionals and beginners.|
+//| It enhances the overall trading experience on the MT4 platform by  |
+//| offering unique features.                                         |
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+//|                        Risk Management                           |
+//+------------------------------------------------------------------+
+double CalculateRisk(double riskPercentage, double stopLoss)
+{
+    // Calculate lot size based on risk percentage and stop loss
+    return AccountBalance() * riskPercentage / stopLoss;
+}
+
+void VisualizeRisk(double riskPercentage, double stopLoss)
+{
+    // Display risk information visually
+    Comment('Risk Percentage: ', riskPercentage, '%');
+    Comment('Stop Loss: ', stopLoss);
+    Comment('Lot Size: ', CalculateRisk(riskPercentage, stopLoss));
+}
+
+//+------------------------------------------------------------------+
+//|                  Order Modification                               |
+//+------------------------------------------------------------------+
+void ModifyOrder(int ticket, double newStopLoss, double newTakeProfit)
+{
+    // Modify order with new stop loss and take profit levels
+    OrderModify(ticket, 0, newStopLoss, newTakeProfit, 0, clrNone);
+}
+
+//+------------------------------------------------------------------+
+//|                    Trade Functions                               |
+//+------------------------------------------------------------------+
+void OpenOrder(string symbol, int type, double lots, double stopLoss, double takeProfit)
+{
+    // Open a new order with specified parameters
+    OrderSend(symbol, type, lots, Ask, 0, stopLoss, takeProfit, 'OrderManager', 0, 0, clrNone);
+}
+
+void CloseOrder(int ticket)
+{
+    // Close an existing order
+    OrderClose(ticket, OrderLots(), Bid, 0, clrNone);
+}
+
+//+------------------------------------------------------------------+
+//|                    Main Program                                  |
+//+------------------------------------------------------------------+
+void OnStart()
+{
+    // Define risk and order modification parameters
+    double riskPercentage = 2.5; // 2.5% risk per trade
+    double stopLoss = 50; // 50 pips stop loss
+
+    // Calculate and visualize risk
+    VisualizeRisk(riskPercentage, stopLoss);
+
+    // Open a new order
+    OpenOrder('EURUSD', OP_BUY, CalculateRisk(riskPercentage, stopLoss), stopLoss, 100);
+
+    // Modify the order
+    ModifyOrder(OrderTicket(), 40, 120);
+
+    // Close the order
+    CloseOrder(OrderTicket());
+}
